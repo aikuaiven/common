@@ -179,13 +179,13 @@
     (let ((in-stream (open filename :direction :input))
 	  (out-stream (open "c:/Users/cglooschenko/lisp/project/aiku-system/out.txt" :direction :output :if-exists :overwrite)))
 	(labels ((translate-name (in-name)
-		     (concatenate 'string (funcall #'(lambda (list-char)
+		     (apply #'concatenate (cons 'string (funcall #'(lambda (list-char)
 							 (cons (string-left-trim '(#\-) (car list-char)) (cdr list-char)))
 						   (map 'list #'(lambda (in-char) 
 								    (if (upper-case-p in-char)
 									(concatenate 'string "-" (string (char-downcase in-char)))
 									(string in-char)))
-							in-name))))
+							in-name)))))
 		 (translate-parameter-list (in-string)
 		     (concatenate 'string
 				  "("
@@ -201,7 +201,7 @@
 									      '("\")"))))))))
 				  " "
 				  (cdr (assoc (read-from-string (cadr in-string)) +convert-data-types+))
-				  ")" #\newline))
+				  ")" (string #\newline)))
 		 (convert-lambda (in-line) (string-left-trim '(#\space) (string-right-trim '(#\return #\; #\, #\) #\() in-line)))
 		 (extract-lambda (in-line)
 	    	     (if (find #\; in-line :from-end t)
@@ -220,7 +220,7 @@
 							     (string #\newline)
 							     (cdr (assoc (read-from-string (car in-line))  +convert-data-types+))
 							     (string #\newline)
-							     (concatenate 'string (map 'list #'translate-parameter-list (cdddr in-line)))")")
+							     (apply #'concatenate (cons 'string (map 'list #'translate-parameter-list (cdddr in-line))))")")
 						out-stream))
 				(reader-lambda (read-line in-stream nil)))
 			 (mapcar #'close (list in-stream out-stream)))))
